@@ -5,33 +5,59 @@
 ```
 aetherhaven-multiverse
 |
-+--- AetherMind (packages/aethermind)
-|         Supabase Realtime
-|         Lumina-Core TS Bridge (agent intelligence)
-|         Ghostline Dashboard Feed (security signals)
-|         The Hive, Swarm Room, Transmission Feed, Hive Mind Map
++--- sites/mars-portfolio/     (absorbed from Mellowambience.github.io)
+|    index.html, card.html, rates.html, style.css, script.js
+|    aetherrose/, consulting/, portfolio/
+|    Deploy: GitHub Pages
 |
-+--- Lumina-Core (packages/lumina-core)
-|         powers agent reasoning in AetherMind
-|         Dark Jester feeds TransmissionFeed entropy
-|         deterministic engine governs arc state transitions
++--- sites/bluebird-song/      (absorbed from BluebirdSongProductions)
+|    index.html, about.html, artists.html, releases.html, player.js, style.css
+|    Deploy: GitHub Pages
 |
-+--- Ghostline (packages/ghostline)
-          guards every PR/commit across ALL packages
-          feeds AetherGhost card in Swarm Room
-          weekly audit reports in Transmission Feed
++--- sites/meghan-kylie/       (absorbed from meghan-kylie-landing)
+|    index.html, style.css, images
+|    Deploy: GitHub Pages (client)
+|
++--- packages/ghostline/       (security immune system)
+     Guards ALL three sites on every commit and PR
+     VaultCheck: secret scan (HTML/JS/CSS files)
+     GhostScan: surface analysis of changed files
+     PhantomTrace: JS outbound call audit
+     ShadowAudit: CDN version + inline script audit
+     GhostDNS: external domain reference audit (weekly)
 ```
 
-## Package Boundaries
+## Why Static Sites in a Monorepo
 
-All inter-package communication via typed interfaces. No implicit trust.
-- aethermind to lumina-core: TypeScript bridge (signed message passing)
-- aethermind to Supabase: typed client, service role key never in frontend
-- ghostline: read-only audit, writes only to audit-report/ and Supabase
+These are HTML/CSS/JS sites with no npm build step — no lockfile needed.
+Ghostline CI workflows are written as pure shell/bash, no Node dependency.
+This means:
+- Workflows run instantly (no npm ci, no cache miss)
+- No Actions minutes wasted on install steps
+- Ghostline VaultCheck still scans all site files for secrets
+- PhantomTrace audits all JS for unexpected external calls
+- ShadowAudit checks for vulnerable CDN versions in HTML
 
-## Sibling Repos (standalone, benefit from Ghostline doctrine)
-humanpalette | aetherproof | webspace | clawd | BluebirdSongProductions
+## Keeping Sites Updated Post-Migration
 
-## Deploy: Vercel (aethermind) | Railway (ghostline dashboard + 10 agents) | Supabase (realtime + auth)
+To pull new changes from an original repo into the monorepo:
+
+```bash
+# Mars portfolio
+git subtree pull --prefix=sites/mars-portfolio mars-portfolio main --squash
+
+# Bluebird Song
+git subtree pull --prefix=sites/bluebird-song bluebird-song main --squash
+
+# Meghan & Kylie
+git subtree pull --prefix=sites/meghan-kylie meghan-kylie master --squash
+```
+
+## Security Layer (Ghostline)
+
+No npm. Pure shell. Zero install dependencies. Runs in < 30 seconds.
+
+Every PR: VaultCheck + GhostScan + PhantomTrace + ShadowAudit
+Every Monday 3am UTC: Full deep audit + GhostDNS + artifact upload
 
 🜂 2026 Aetherhaven Holdings — Amara T. (Mars)

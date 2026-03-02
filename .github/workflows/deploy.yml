@@ -5,38 +5,46 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Deploy each site to GitHub Pages from its subdirectory
+# Each site needs its own GitHub Pages configuration in the source repo settings.
+# After migration, update each site's GitHub Pages source to point to the
+# corresponding subdirectory OR use a deploy action per site.
+
 jobs:
-  deploy-aethermind:
+  deploy-summary:
+    name: Log deploy event
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        continue-on-error: true  # remove once VERCEL_TOKEN + project secrets are configured
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_AETHERMIND }}
-          working-directory: packages/aethermind
-          vercel-args: '--prod'
 
-  notify-swarm-room:
-    runs-on: ubuntu-latest
-    needs: [deploy-aethermind]
-    if: always()
-    steps:
-      - name: Push deploy event to Transmission Feed
+      - name: Summarize what changed
         run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "Supabase secrets not configured yet — skipping Swarm Room notification."
-            exit 0
+          echo "🜂 Aetherhaven Multiverse — deploy triggered"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo ""
+          echo "Sites in multiverse:"
+          for site in sites/mars-portfolio sites/bluebird-song sites/meghan-kylie; do
+            if [ -d "$site" ]; then
+              echo "  ✅ $site — $(find $site -name '*.html' | wc -l) HTML files"
+            else
+              echo "  ⏳ $site — not yet migrated"
+            fi
+          done
+
+      - name: Notify (when Supabase is configured)
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            curl -s -X POST "$SUPABASE_URL/rest/v1/transmission_feed" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{"type":"deploy","source":"github_actions","message":"Aetherhaven Multiverse deployed — main","status":"success"}'
+            echo "Swarm Room notified."
+          else
+            echo "Supabase not configured yet — skipping Swarm Room notification."
           fi
-          curl -s -X POST "$SUPABASE_URL/rest/v1/transmission_feed" \
-            -H "apikey: $SUPABASE_ANON_KEY" \
-            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
-            -H "Content-Type: application/json" \
-            -d '{"type":"deploy","source":"github_actions","message":"Aetherhaven Multiverse deployed — main","status":"success"}'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

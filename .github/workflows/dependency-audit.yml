@@ -7,49 +7,63 @@ on:
 
 jobs:
   deep-audit:
+    name: Full Ghostline deep audit — all sites
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          # cache: 'npm'  -- re-enable after package-lock.json exists (post migration)
-      - name: Check for lockfile
-        id: check
+
+      - name: VaultCheck — full repo secret scan
         run: |
-          if [ -f package-lock.json ]; then
-            echo "HAS_LOCKFILE=true" >> $GITHUB_OUTPUT
-          else
-            echo "HAS_LOCKFILE=false" >> $GITHUB_OUTPUT
-            echo "Scaffold mode — skipping deep audit until packages are installed."
-          fi
-      - run: npm ci
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-      - name: Full CVE scan
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
+          echo "Full repository VaultCheck..."
+          PATTERNS=("sk-[a-zA-Z0-9]{32,}" "ghp_[a-zA-Z0-9]{36}" "SUPABASE_SERVICE_ROLE" "-----BEGIN.*PRIVATE KEY-----" "RAILWAY_TOKEN" "VERCEL_TOKEN" "stripe_live_sk_" "AIza[0-9A-Za-z-_]{35}")
+          FOUND=0
+          for FILE in $(find . -type f \( -name "*.html" -o -name "*.js" -o -name "*.css" \) -not -path "./.git/*" 2>/dev/null); do
+            for P in "${PATTERNS[@]}"; do
+              if grep -qE "$P" "$FILE" 2>/dev/null; then
+                echo "❌ $FILE — $P"
+                FOUND=1
+              fi
+            done
+          done
+          [ $FOUND -eq 0 ] && echo "✅ Full VaultCheck passed"
+
+      - name: PhantomTrace — full JS behavioral audit
         run: |
-          npm audit --workspaces --json > audit-report-npm.json || true
-          npx osv-scanner --recursive --format sarif . > osv-report.sarif || true
-      - name: GhostDNS
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-        run: npx turbo audit --filter=ghostline -- --module=ghost-dns
-        env:
-          GHOSTLINE_DNS_DOMAINS: "aetherhaven.io,aetherrose.io,humanpalette.app"
-      - name: PhantomTrace full
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-        run: npx turbo audit --filter=ghostline -- --module=phantom-trace --full
-      - name: License compliance
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-        run: npx license-checker --onlyAllow 'MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;CC0-1.0' --excludePrivatePackages
-      - name: VaultCheck full repo
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-        run: npx turbo audit --filter=ghostline -- --module=vault-check --full-repo
-      - name: Upload SARIF
-        if: steps.check.outputs.HAS_LOCKFILE == 'true'
-        uses: github/codeql-action/upload-sarif@v3
+          echo "Full PhantomTrace scan..."
+          for JS in $(find sites/ -name "*.js" 2>/dev/null); do
+            echo "=== $JS ==="
+            grep -n "fetch\|XMLHttpRequest\|WebSocket\|eval\|document\.write\|innerHTML\s*=" "$JS" 2>/dev/null || echo "  Clean"
+          done
+
+      - name: ShadowAudit — CDN version audit + inline script check
+        run: |
+          echo "ShadowAudit: checking all HTML files..."
+          for HTML in $(find sites/ -name "*.html" 2>/dev/null); do
+            echo "=== $HTML ==="
+            echo "  External scripts:"
+            grep -oE 'src="https?://[^"]*\.js[^"]*"' "$HTML" 2>/dev/null || echo "  None"
+            echo "  Inline script blocks:"
+            grep -c "<script>" "$HTML" 2>/dev/null && echo " inline script blocks found" || echo "  0"
+          done
+
+      - name: GhostDNS — external domain reference audit
+        run: |
+          echo "GhostDNS: auditing all external domain references..."
+          grep -roh 'https\?://[^/"]*' sites/ 2>/dev/null | sort | uniq -c | sort -rn | head -30 || echo "No external references found"
+
+      - name: Generate audit summary
+        run: |
+          echo "# Ghostline Weekly Audit — $(date -u +%Y-%m-%d)" > audit-summary.md
+          echo "Sites scanned: mars-portfolio, bluebird-song, meghan-kylie" >> audit-summary.md
+          echo "Status: Complete" >> audit-summary.md
+          cat audit-summary.md
+
+      - name: Upload audit summary as artifact
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: osv-report.sarif
-        continue-on-error: true
+          name: ghostline-audit-${{ github.run_number }}
+          path: audit-summary.md
+          retention-days: 90

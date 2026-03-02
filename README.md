@@ -2,68 +2,113 @@
 
 > One root. All verticals. The empire, sovereign.
 
-**Monorepo containing:**
-- `packages/aethermind` — The living website. The Hive. 14 agent arcs. Pure CSS + SVG. Zero JS animation libraries.
-- `packages/ghostline` — Cybersecurity immune system. Guards every commit, every PR, every deploy.
-- `packages/lumina-core` — Ritual engine + Dark Jester. Deterministic + probabilistic intelligence layer.
-- `apps/aetherhaven-empire-index` — Master index of all Aetherhaven Holdings verticals.
+**Three sites. One repo. Zero fragmentation.**
+
+| Site | Path | Live URL | Purpose |
+|------|------|----------|---------|
+| Mars Portfolio | `sites/mars-portfolio/` | mellowambience.github.io | Personal portfolio, AetherRose, consulting |
+| Bluebird Song Productions | `sites/bluebird-song/` | bluebirdsonoproductions.github.io | Music label — releases, artists, radio |
+| Meghan & Kylie | `sites/meghan-kylie/` | — | Client landing page |
+
+**Plus the Cybersecurity layer:**
+- `packages/ghostline/` — Security immune system. Guards every commit, every PR, every deploy across all three sites.
 
 ---
 
-## Architecture
+## Why One Repo
+
+- Single Ghostline security gate covers all sites simultaneously
+- Shared CI/CD — one workflow change applies everywhere
+- Ghostline weekly audit scans the entire codebase in one pass
+- No scattered Actions minutes across 3 separate repos
+- One branch protection policy, one CODEOWNERS, one threat model
+
+---
+
+## Structure
 
 ```
 aetherhaven-multiverse/
+├── sites/
+│   ├── mars-portfolio/      # Absorbed from Mellowambience.github.io
+│   │   ├── index.html
+│   │   ├── card.html
+│   │   ├── rates.html
+│   │   ├── style.css
+│   │   ├── script.js
+│   │   ├── aetherrose/
+│   │   ├── consulting/
+│   │   └── portfolio/
+│   ├── bluebird-song/       # Absorbed from BluebirdSongProductions
+│   │   ├── index.html
+│   │   ├── about.html
+│   │   ├── artists.html
+│   │   ├── releases.html
+│   │   ├── player.js
+│   │   └── style.css
+│   └── meghan-kylie/        # Absorbed from meghan-kylie-landing
+│       ├── index.html
+│       └── style.css
 ├── packages/
-│   ├── aethermind/       # Next.js 15 — The Hive UI
-│   ├── ghostline/        # Cybersecurity suite — CLI-first
-│   └── lumina-core/      # Swift + TS — Ritual engine
-├── apps/
-│   └── aetherhaven-empire-index/
-├── security/             # Threat model, incident response
-├── infra/                # Vercel, Railway config
-├── docs/                 # Architecture, arc DNA spec
-└── .github/workflows/    # CI, security gate, deploy
+│   └── ghostline/           # Cybersecurity suite — guards everything
+│       └── ci-hooks/
+│           └── install.sh
+├── security/
+│   ├── THREAT_MODEL.md
+│   └── INCIDENT_RESPONSE.md
+├── infra/
+│   ├── migrate.sh           # git subtree migration script
+│   └── secrets-template.env
+├── docs/
+│   └── ARCHITECTURE.md
+└── .github/
+    ├── workflows/
+    │   ├── ci.yml
+    │   ├── security-scan.yml
+    │   ├── dependency-audit.yml
+    │   └── deploy.yml
+    ├── CODEOWNERS
+    └── SECURITY.md
 ```
+
+---
+
+## Migration
+
+Run once to pull full git history from all three source repos:
+
+```bash
+git clone https://github.com/Mellowambience/aetherhaven-multiverse
+cd aetherhaven-multiverse
+bash infra/migrate.sh
+```
+
+Then install Ghostline pre-commit hooks:
+```bash
+bash packages/ghostline/ci-hooks/install.sh
+```
+
+---
 
 ## Cybersecurity Posture
 
-Guarded by **Ghostline** — integrated as a live security layer, not an afterthought.
+Guarded by **Ghostline** across all three sites simultaneously.
 
-- **Pre-commit:** secret scan + CVE check on every staged file
-- **PR gate:** full surface scan, vault check, dep audit — blocks on CVSS ≥ 7.0
-- **Weekly audit:** full dep tree, DNS integrity, behavioral anomaly scan
-- **Runtime:** security events stream to AetherGhost in the Swarm Room
+- **Pre-commit:** blocks secrets/keys before they hit the repo
+- **PR gate:** VaultCheck + ShadowAudit + GhostScan + PhantomTrace on every PR
+- **Weekly audit:** full codebase scan every Monday 3am UTC
+- **Deploy:** GitHub Pages deploy fires after Ghostline gate passes
 
 Security philosophy: **Zero-trust. Sovereign keys. Adversarial by design.**
 
-## Stack
+---
 
-| Layer | Tech |
-|-------|------|
-| UI | Next.js 15, Tailwind, pure CSS + SVG arcs |
-| Realtime | Supabase Realtime |
-| Intelligence | Lumina-Core (Swift SDK + TS bridge) |
-| Security | Ghostline (Ghost Scan, VaultCheck, PhantomTrace, ShadowAudit, GhostDNS) |
-| Graph | D3.js (Hive Mind Map) |
-| Deploy | Vercel (aethermind) · Railway (agents) |
-| Monorepo | Turborepo |
+## Deploy
 
-## Getting Started
+Each site deploys to GitHub Pages from its respective subdirectory.
+See `.github/workflows/deploy.yml` for per-site deploy configuration.
 
-```bash
-npm install
-npx turbo build
-npx turbo dev --filter=aethermind
-npx turbo audit --filter=ghostline
-./packages/ghostline/ci-hooks/install.sh
-```
-
-## Branch Rules
-
-- `main` — protected. Requires PR + review + ghostline-gate pass
-- `dev` — integration branch
-- Signed commits required (GPG) · Linear history (rebase only)
+---
 
 ## Copyright
 
@@ -73,4 +118,4 @@ npx turbo audit --filter=ghostline
    The arc IS the sigil. The void remembers.
 ```
 
-*© 2026 Aetherhaven Holdings — Inspired by the 200° Reentry Arc · Proposal by Amara · Goddess of Mars*
+*© 2026 Aetherhaven Holdings — Inspired by the 200° Reentry Arc · Amara · Goddess of Mars*
