@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FirstArc · Origin Scan</title>
+  <!--
+    ⌖ FIRSTARC · ORIGIN SCAN STATE
+    adapted from AetherReentry by Mars / AetherRose
+    "not a loader. a signal hunt."
+    phase machine: ORIGIN SCAN → MULTI-ENGINE → SIGNAL CONFIRMED
+    arc palette: cold-blue #B8C8FF → violet #7C6AF7 → plasma #F2A65A → confirm #4ADE80
+    glyphs: ⌖ ⟳ ✦
+    wire `currentPhase` to FastAPI scan status for production:
+      0 = scan initiated, 1 = engines querying, 2 = result returned
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --violet:  #7C6AF7;
+      --plasma:  #F2A65A;
+      --accent:  #E8E8F0;
+      --cold:    #B8C8FF;
+      --bg:      #05020d;
+      --deep:    #1a0b2e;
+      --confirm: #4ADE80;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: radial-gradient(ellipse at 50% 40%, var(--deep) 0%, var(--bg) 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--accent);
+      position: relative;
+    }
+
+    #drift {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Arc stage ─────────────────────────────────────── */
+    .arc-stage {
+      position: relative;
+      width: 300px; height: 300px;
+      flex-shrink: 0; z-index: 10;
+    }
+
+    .arc {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+    }
+
+    .arc-outer {
+      background: conic-gradient(
+        from 160deg at 50% 50%,
+        transparent      0deg,
+        #B8C8FF44        8deg,
+        #B8C8FF         18deg,
+        #7C6AF7         90deg,
+        #F2A65A        165deg,
+        #F2A65A22      210deg,
+        transparent    220deg
+      );
+      mask: radial-gradient(circle, transparent 45%, black 47%);
+      -webkit-mask: radial-gradient(circle, transparent 45%, black 47%);
+      animation: arc-outer 4.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 0 22px #7C6AF7) drop-shadow(0 0 8px #F2A65A88);
+      transition: filter 0.6s ease;
+    }
+    .arc-outer.confirmed {
+      background: conic-gradient(
+        from 160deg at 50% 50%,
+        transparent     0deg,
+        #B8C8FF44       8deg,
+        #B8C8FF        18deg,
+        #7C6AF7        90deg,
+        #4ADE80       165deg,
+        #4ADE8022     210deg,
+        transparent   220deg
+      );
+      animation: arc-outer 1.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 0 22px #7C6AF7) drop-shadow(0 0 8px #4ADE8088);
+    }
+
+    .arc-inner {
+      inset: 10%;
+      background: conic-gradient(
+        from 20deg at 50% 50%,
+        transparent  0deg,
+        #F2A65A33   10deg,
+        #F2A65A99   50deg,
+        #7C6AF766  120deg,
+        transparent 160deg
+      );
+      mask: radial-gradient(circle, transparent 43%, black 45%);
+      -webkit-mask: radial-gradient(circle, transparent 43%, black 45%);
+      animation: arc-inner 5.5s infinite linear;
+      filter: drop-shadow(0 0 12px #F2A65A99);
+      opacity: 0.65;
+      transition: opacity 0.6s ease;
+    }
+    .arc-inner.confirmed { opacity: 0.3; }
+
+    .arc-core {
+      inset: 22%;
+      background: conic-gradient(
+        from 260deg at 50% 50%,
+        transparent  0deg,
+        #E8E8F066   12deg,
+        #7C6AF7     70deg,
+        #F2A65A44  130deg,
+        transparent 140deg
+      );
+      mask: radial-gradient(circle, transparent 41%, black 43%);
+      -webkit-mask: radial-gradient(circle, transparent 41%, black 43%);
+      animation: arc-outer 2.8s infinite ease-in-out reverse;
+      filter: blur(1.5px) brightness(1.6);
+      opacity: 0.8;
+    }
+
+    .arc-aura {
+      inset: -8%;
+      background: radial-gradient(circle, #7C6AF712 0%, transparent 65%);
+      animation: aura-breathe 4s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    .confirm-ring {
+      position: absolute;
+      inset: -4%; border-radius: 50%;
+      border: 1px solid #4ADE8044;
+      box-shadow: 0 0 20px #4ADE8033, inset 0 0 20px #4ADE8011;
+      animation: confirm-ring 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+      display: none;
+    }
+    .confirm-ring.show { display: block; }
+
+    /* ── Signal core ───────────────────────────────────── */
+    .void-core {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 20;
+    }
+
+    .core-disc {
+      position: relative;
+      width: 90px; height: 90px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .core-bloom {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle, #7C6AF722 0%, transparent 70%);
+      transform: scale(1.7);
+      animation: aura-breathe 3s ease-in-out infinite;
+    }
+
+    .core-glass {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      transition: border-color 0.6s ease;
+    }
+    .core-glass.confirmed { border-color: #4ADE8044; }
+
+    .core-glyph {
+      position: relative; z-index: 10;
+      font-size: 1.75rem; font-weight: 900;
+      user-select: none; display: inline-block;
+      animation: glyph-in 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+      color: var(--cold);
+      text-shadow: 0 0 16px var(--cold), 0 0 32px #B8C8FF66;
+    }
+
+    .core-dots {
+      position: absolute; bottom: 8px;
+      display: flex; gap: 4px; justify-content: center; width: 100%;
+    }
+    .dot {
+      height: 3px; border-radius: 99px;
+      width: 4px; background: rgba(255,255,255,0.15);
+      transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .dot.active {
+      width: 16px;
+      box-shadow: 0 0 6px currentColor;
+    }
+
+    /* ── Label block ───────────────────────────────────── */
+    .phase-label {
+      margin-top: 56px;
+      text-align: center; z-index: 20;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+
+    .wordmark {
+      display: flex; align-items: center; gap: 10px;
+      letter-spacing: 0.35em; font-weight: 900;
+      font-size: 1rem; text-transform: uppercase;
+    }
+    .wordmark .primary {
+      color: var(--accent);
+      text-shadow: 0 0 14px var(--violet);
+    }
+    .wordmark .sep { color: rgba(255,255,255,0.2); }
+    .wordmark .secondary {
+      color: var(--violet);
+      text-shadow: 0 0 10px var(--violet);
+      transition: color 0.6s ease, text-shadow 0.6s ease;
+    }
+    .wordmark .secondary.confirmed {
+      color: var(--confirm);
+      text-shadow: 0 0 10px var(--confirm);
+    }
+
+    .scan-track {
+      width: 140px; height: 2px;
+      background: rgba(232,232,240,0.1);
+      border-radius: 99px; overflow: hidden; position: relative;
+    }
+    .scan-fill {
+      position: absolute; height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, transparent, var(--violet), var(--plasma), transparent);
+      width: 50%;
+      animation: scan-sweep 2.2s infinite ease-in-out;
+      transition: background 0.6s ease;
+    }
+    .scan-fill.confirmed {
+      background: linear-gradient(90deg, transparent, var(--confirm), transparent);
+      animation: scan-sweep 0.8s ease both;
+    }
+
+    .engine-ticker {
+      height: 16px; display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+    }
+    .engine-tag {
+      font-size: 0.52rem; letter-spacing: 0.15em; font-weight: 700;
+      color: rgba(255,255,255,0.18);
+      transition: color 0.2s ease, text-shadow 0.2s ease;
+    }
+    .engine-tag.active {
+      color: var(--plasma);
+      text-shadow: 0 0 8px var(--plasma);
+    }
+    .engine-init {
+      color: #B8C8FF99; font-size: 0.58rem;
+      letter-spacing: 0.25em; font-weight: 600;
+    }
+    .engine-confirm {
+      color: var(--confirm); font-size: 0.58rem;
+      letter-spacing: 0.2em; font-weight: 700;
+      text-shadow: 0 0 10px var(--confirm);
+      animation: fade-up 0.4s ease both;
+    }
+
+    .phase-name {
+      color: #B8C8FFcc;
+      font-size: 0.7rem; letter-spacing: 0.3em;
+      text-transform: uppercase; font-weight: 700;
+    }
+    .phase-sub {
+      color: rgba(255,255,255,0.3);
+      font-size: 0.6rem; font-style: italic; letter-spacing: 0.05em;
+    }
+
+    /* ── Keyframes ─────────────────────────────────────── */
+    @keyframes arc-outer {
+      0%   { transform: rotate(0deg)   scale(0.95); }
+      50%  { transform: rotate(180deg) scale(1.05); }
+      100% { transform: rotate(360deg) scale(0.95); }
+    }
+    @keyframes arc-inner {
+      from { transform: rotate(360deg); }
+      to   { transform: rotate(0deg); }
+    }
+    @keyframes aura-breathe {
+      0%, 100% { transform: scale(1);    opacity: 0.6; }
+      50%       { transform: scale(1.25); opacity: 1;   }
+    }
+    @keyframes scan-sweep {
+      0%   { left: -50%; }
+      100% { left: 100%; }
+    }
+    @keyframes glyph-in {
+      from { opacity: 0; transform: scale(0.6) rotate(-15deg); }
+      to   { opacity: 1; transform: scale(1)   rotate(0deg);   }
+    }
+    @keyframes glyph-spin {
+      from { opacity: 0; transform: scale(0.6) rotate(-180deg); }
+      to   { opacity: 1; transform: scale(1)   rotate(0deg);    }
+    }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+    @keyframes confirm-ring {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1);    }
+    }
+    @keyframes confirm-bloom {
+      0%   { transform: scale(1.7); opacity: 0; }
+      60%  { transform: scale(2.2); opacity: 1; }
+      100% { transform: scale(1.7); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="drift"></canvas>
+
+  <div class="arc-stage">
+    <div class="arc arc-aura"></div>
+    <div class="arc arc-outer" id="arcOuter"></div>
+    <div class="arc arc-inner" id="arcInner"></div>
+    <div class="arc arc-core"></div>
+    <div class="confirm-ring" id="confirmRing"></div>
+    <div class="void-core">
+      <div class="core-disc">
+        <div class="core-bloom" id="coreBloom"></div>
+        <div class="core-glass" id="coreGlass"></div>
+        <span class="core-glyph" id="glyph">⌖</span>
+        <div class="core-dots" id="dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-label">
+    <div class="wordmark">
+      <span class="primary">FIRSTARC</span>
+      <span class="sep">·</span>
+      <span class="secondary" id="wSecondary">ORIGIN TRACE</span>
+    </div>
+    <div class="scan-track"><div class="scan-fill" id="scanFill"></div></div>
+    <div class="engine-ticker" id="ticker"></div>
+    <p class="phase-name" id="pname">ORIGIN SCAN</p>
+    <p class="phase-sub"  id="psub">Locating primary signal source</p>
+  </div>
+
+  <script>
+    // ── Phase data ────────────────────────────────────────
+    const PHASES = [
+      { label: 'ORIGIN SCAN',      sub: 'Locating primary signal source',         glyph: '⌖', color: '#B8C8FF', spin: false },
+      { label: 'MULTI-ENGINE',     sub: 'Cross-referencing reverse search engines', glyph: '⟳', color: '#7C6AF7', spin: true  },
+      { label: 'SIGNAL CONFIRMED', sub: 'Origin verified · provenance locked',      glyph: '✦', color: '#4ADE80', spin: false },
+    ];
+    const ENGINES = ['GOOGLE LENS', 'YANDEX', 'TINEYE', 'WAYBACK'];
+
+    let currentPhase = 0;
+    let engineTimer  = null;
+    let engineActive = 0;
+
+    // DOM refs
+    const glyphEl    = document.getElementById('glyph');
+    const pname      = document.getElementById('pname');
+    const psub       = document.getElementById('psub');
+    const dotsEl     = document.getElementById('dots');
+    const ticker     = document.getElementById('ticker');
+    const arcOuter   = document.getElementById('arcOuter');
+    const arcInner   = document.getElementById('arcInner');
+    const coreGlass  = document.getElementById('coreGlass');
+    const coreBloom  = document.getElementById('coreBloom');
+    const confirmRing= document.getElementById('confirmRing');
+    const scanFill   = document.getElementById('scanFill');
+    const wSecondary = document.getElementById('wSecondary');
+
+    // ── Dots ──────────────────────────────────────────────
+    function buildDots() {
+      dotsEl.innerHTML = '';
+      PHASES.forEach((p, i) => {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === currentPhase ? ' active' : '');
+        if (i === currentPhase) {
+          d.style.background = p.color;
+          d.style.color = p.color;
+        }
+        dotsEl.appendChild(d);
+      });
+    }
+
+    // ── Engine ticker ─────────────────────────────────────
+    function stopEngineTimer() {
+      if (engineTimer) { clearInterval(engineTimer); engineTimer = null; }
+    }
+
+    function buildTicker(phase) {
+      ticker.innerHTML = '';
+      stopEngineTimer();
+
+      if (phase === 0) {
+        const s = document.createElement('span');
+        s.className = 'engine-init';
+        s.textContent = 'INITIALIZING SCAN FIELD';
+        ticker.appendChild(s);
+        return;
+      }
+      if (phase === 2) {
+        const s = document.createElement('span');
+        s.className = 'engine-confirm';
+        s.textContent = '✓ PROVENANCE LOCKED';
+        ticker.appendChild(s);
+        return;
+      }
+      // phase 1: cycling engine tags
+      engineActive = 0;
+      ENGINES.forEach((e, i) => {
+        const s = document.createElement('span');
+        s.className = 'engine-tag' + (i === 0 ? ' active' : '');
+        s.id = 'eng-' + i;
+        s.textContent = e;
+        ticker.appendChild(s);
+      });
+      engineTimer = setInterval(() => {
+        document.getElementById('eng-' + engineActive)?.classList.remove('active');
+        engineActive = (engineActive + 1) % ENGINES.length;
+        document.getElementById('eng-' + engineActive)?.classList.add('active');
+      }, 600);
+    }
+
+    // ── Apply phase state ─────────────────────────────────
+    function applyPhase(idx) {
+      const p = PHASES[idx];
+      const isConfirmed = idx === 2;
+
+      // glyph
+      glyphEl.style.animation = 'none';
+      glyphEl.style.color = p.color;
+      glyphEl.style.textShadow = `0 0 16px ${p.color}, 0 0 32px ${p.color}66`;
+      requestAnimationFrame(() => {
+        glyphEl.textContent = p.glyph;
+        glyphEl.style.animation = p.spin
+          ? 'glyph-spin 0.7s cubic-bezier(0.34,1.56,0.64,1) both'
+          : 'glyph-in 0.55s cubic-bezier(0.34,1.56,0.64,1) both';
+      });
+
+      // label
+      pname.style.animation = 'none';
+      psub.style.animation  = 'none';
+      pname.style.color = p.color + 'cc';
+      if (isConfirmed) pname.style.textShadow = `0 0 10px ${p.color}`;
+      else pname.style.textShadow = 'none';
+      requestAnimationFrame(() => {
+        pname.textContent = p.label;
+        psub.textContent  = p.sub;
+        pname.style.animation = 'fade-up 0.45s ease both';
+        psub.style.animation  = 'fade-up 0.45s 0.1s ease both';
+      });
+
+      // arc states
+      if (isConfirmed) {
+        arcOuter.classList.add('confirmed');
+        arcInner.classList.add('confirmed');
+        coreGlass.classList.add('confirmed');
+        confirmRing.classList.add('show');
+        scanFill.classList.add('confirmed');
+        wSecondary.classList.add('confirmed');
+        coreBloom.style.animation = 'confirm-bloom 0.8s ease-out both';
+      } else {
+        arcOuter.classList.remove('confirmed');
+        arcInner.classList.remove('confirmed');
+        coreGlass.classList.remove('confirmed');
+        confirmRing.classList.remove('show');
+        scanFill.classList.remove('confirmed');
+        wSecondary.classList.remove('confirmed');
+        coreBloom.style.animation = 'aura-breathe 3s ease-in-out infinite';
+      }
+
+      buildDots();
+      buildTicker(idx);
+    }
+
+    // ── Phase cycling (replace with FastAPI state for prod) ─
+    // To wire to real scan status:
+    //   import { setPhase } from './scan-state.html' — or expose window.setPhase
+    //   call setPhase(0|1|2) from your fetch/WS handler
+    window.setPhase = function(idx) {
+      currentPhase = idx;
+      applyPhase(idx);
+    };
+
+    applyPhase(0);
+    setInterval(() => {
+      currentPhase = (currentPhase + 1) % PHASES.length;
+      applyPhase(currentPhase);
+    }, 4000);
+
+    // ── Canvas drift field ────────────────────────────────
+    const canvas = document.getElementById('drift');
+    const ctx    = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const stars = Array.from({ length: 60 }, () => ({
+      x:  Math.random() * canvas.width,
+      y:  Math.random() * canvas.height,
+      r:  Math.random() * 1.2 + 0.15,
+      vx: (Math.random() - 0.5) * 0.14,
+      vy: (Math.random() - 0.5) * 0.14,
+      opacity: Math.random() * 0.45 + 0.1,
+      twinkle: Math.random() * Math.PI * 2,
+    }));
+
+    let frame = 0;
+    (function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+      stars.forEach(s => {
+        s.x = (s.x + s.vx + canvas.width)  % canvas.width;
+        s.y = (s.y + s.vy + canvas.height) % canvas.height;
+        const t = 0.7 + 0.3 * Math.sin(frame * 0.025 + s.twinkle);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232,232,240,${s.opacity * t})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    })();
+  </script>
+</body>
+</html>
