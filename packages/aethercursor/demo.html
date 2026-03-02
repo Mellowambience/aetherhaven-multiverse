@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-aether-cursor>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AetherCursor · Demo</title>
+  <!--
+    ✦ AETHERCURSOR DEMO
+    ambient arc cursor — moves as a cold-blue ghost dot,
+    blooms into the full 3-body arc system when idle or hovering.
+    Drop into any Aetherhaven site: <script src="../aethercursor/aether-cursor.js"></script>
+    Then call AetherCursor.attach(); or add data-aether-cursor to <html>.
+  -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --violet: #7C6AF7;
+      --plasma: #F2A65A;
+      --accent: #E8E8F0;
+      --cold:   #B8C8FF;
+      --bg:     #05020d;
+      --deep:   #1a0b2e;
+    }
+
+    html, body {
+      min-height: 100vh; width: 100%;
+      background: radial-gradient(ellipse at 50% 35%, var(--deep) 0%, var(--bg) 100%);
+      color: var(--accent);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 48px;
+      padding: 60px 24px;
+    }
+
+    /* ── Wordmark ── */
+    .wordmark {
+      display: flex; align-items: center; gap: 10px;
+      letter-spacing: 0.35em; font-weight: 900;
+      font-size: 1rem; text-transform: uppercase;
+    }
+    .wordmark .primary {
+      color: var(--accent);
+      text-shadow: 0 0 14px var(--violet);
+    }
+    .wordmark .sep { color: rgba(255,255,255,0.2); }
+    .wordmark .secondary {
+      color: var(--violet);
+      text-shadow: 0 0 10px var(--violet);
+    }
+
+    /* ── Hero copy ── */
+    .hero {
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      max-width: 480px;
+    }
+    .hero h1 {
+      font-size: 1.8rem; font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 20px var(--violet);
+      line-height: 1.2;
+    }
+    .hero .sub {
+      font-size: 0.78rem; color: rgba(255,255,255,0.38);
+      letter-spacing: 0.08em; font-style: italic;
+    }
+
+    /* ── State cards ── */
+    .state-row {
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
+    }
+    .state-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 20px 28px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      min-width: 180px;
+    }
+    .state-card .label {
+      font-size: 0.62rem; letter-spacing: 0.3em;
+      text-transform: uppercase; font-weight: 700;
+      color: rgba(255,255,255,0.35);
+    }
+    .state-card .glyph {
+      font-size: 1.4rem;
+      color: var(--cold);
+      text-shadow: 0 0 12px var(--cold);
+    }
+    .state-card .desc {
+      font-size: 0.65rem; color: rgba(255,255,255,0.3);
+      text-align: center; font-style: italic;
+    }
+
+    /* ── Hover targets (interactive zone) ── */
+    .hover-zone {
+      display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+    }
+    .hover-zone p {
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: rgba(255,255,255,0.25);
+      width: 100%; text-align: center;
+    }
+    .orb {
+      width: 54px; height: 54px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      background: rgba(124,106,247,0.08);
+      border: 1px solid rgba(124,106,247,0.25);
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+    .orb:hover {
+      background: rgba(124,106,247,0.16);
+      border-color: rgba(124,106,247,0.6);
+    }
+    .pill {
+      padding: 10px 22px; border-radius: 99px;
+      background: rgba(242,164,90,0.07);
+      border: 1px solid rgba(242,164,90,0.25);
+      font-size: 0.65rem; letter-spacing: 0.25em;
+      text-transform: uppercase; font-weight: 700;
+      color: rgba(242,164,90,0.7);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .pill:hover {
+      background: rgba(242,164,90,0.14);
+      border-color: rgba(242,164,90,0.6);
+      color: #F2A65A;
+    }
+
+    /* ── Integration snippet ── */
+    .snippet {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 16px 24px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: rgba(184,200,255,0.75);
+      line-height: 1.7;
+      max-width: 520px; width: 100%;
+    }
+    .snippet .cm { color: rgba(255,255,255,0.25); font-style: italic; }
+    .snippet .kw { color: #7C6AF7; }
+    .snippet .fn { color: #F2A65A; }
+    .snippet .st { color: #B8C8FF; }
+
+    /* ── Footer ── */
+    .footer {
+      font-size: 0.58rem; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.15); text-align: center;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wordmark">
+    <span class="primary">AETHERCURSOR</span>
+    <span class="sep">·</span>
+    <span class="secondary">ARC MODULE</span>
+  </div>
+
+  <div class="hero">
+    <h1>Move. Pause. Bloom.</h1>
+    <p class="sub">ambient while you drift · arc system on hover and idle</p>
+  </div>
+
+  <!-- State reference cards -->
+  <div class="state-row">
+    <div class="state-card">
+      <span class="label">AMBIENT</span>
+      <span class="glyph">·</span>
+      <span class="desc">moving — cold-blue ghost dot + trail, near-invisible</span>
+    </div>
+    <div class="state-card">
+      <span class="label" style="color:#7C6AF7aa">BLOOM</span>
+      <span class="glyph" style="color:#7C6AF7; text-shadow: 0 0 12px #7C6AF7">◈</span>
+      <span class="desc">idle 180ms or hover — full 3-body arc system</span>
+    </div>
+  </div>
+
+  <!-- Interactive targets to trigger bloom -->
+  <div class="hover-zone">
+    <p>hover these to trigger bloom</p>
+    <div class="orb" tabindex="0">✦</div>
+    <div class="orb" tabindex="0">⟁</div>
+    <div class="orb" tabindex="0">◈</div>
+    <button class="pill">ORIGIN SCAN</button>
+    <button class="pill">REINTROITUS</button>
+    <a href="#" class="pill">VOID GATE</a>
+  </div>
+
+  <!-- Drop-in snippet -->
+  <div class="snippet">
+    <span class="cm">&lt;!-- drop into any Aetherhaven page --&gt;</span><br>
+    <span class="kw">&lt;script</span> <span class="fn">src</span>=<span class="st">"/shared/aether-cursor.js"</span><span class="kw">&gt;&lt;/script&gt;</span><br><br>
+    <span class="cm">// auto-attach via attribute:</span><br>
+    <span class="kw">&lt;html</span> <span class="fn">data-aether-cursor</span><span class="kw">&gt;</span><br><br>
+    <span class="cm">// or manually with config:</span><br>
+    <span class="fn">AetherCursor</span>.<span class="fn">attach</span>({ <span class="fn">bloomDelay</span>: <span class="st">180</span>, <span class="fn">size</span>: <span class="st">64</span> });
+  </div>
+
+  <p class="footer">aetherhaven · mars / aetherrose · zero deps · pure canvas</p>
+
+  <script src="aether-cursor.js"></script>
+  <script>
+    // data-aether-cursor attr on <html> triggers auto-attach above
+    // Manual override example:
+    // AetherCursor.attach({ bloomDelay: 120, size: 72 });
+  </script>
+
+</body>
+</html>
