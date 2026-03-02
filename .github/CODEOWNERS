@@ -1,0 +1,8 @@
+# CODEOWNERS — Aetherhaven Multiverse
+*                          @Mellowambience
+packages/aethermind/       @Mellowambience
+packages/ghostline/        @Mellowambience
+packages/lumina-core/      @Mellowambience
+security/                  @Mellowambience
+.github/workflows/         @Mellowambience
+infra/                     @Mellowambience

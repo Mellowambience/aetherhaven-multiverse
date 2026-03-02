@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-aethermind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_AETHERMIND }}
+          working-directory: packages/aethermind
+          vercel-args: '--prod'
+
+  notify-swarm-room:
+    runs-on: ubuntu-latest
+    needs: [deploy-aethermind]
+    if: always()
+    steps:
+      - name: Push deploy event to Transmission Feed
+        run: |
+          curl -s -X POST "$SUPABASE_URL/rest/v1/transmission_feed"             -H "apikey: $SUPABASE_ANON_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             -d '{"type":"deploy","source":"github_actions","message":"Aetherhaven Multiverse deployed — main","status":"success"}'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

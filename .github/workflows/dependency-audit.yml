@@ -1,0 +1,39 @@
+name: Weekly Deep Security Audit
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  deep-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Full CVE scan
+        run: |
+          npm audit --workspaces --json > audit-report-npm.json || true
+          npx osv-scanner --recursive --format sarif . > osv-report.sarif || true
+      - name: GhostDNS
+        run: npx turbo audit --filter=ghostline -- --module=ghost-dns
+        env:
+          GHOSTLINE_DNS_DOMAINS: "aetherhaven.io,aetherrose.io,humanpalette.app"
+      - name: PhantomTrace full
+        run: npx turbo audit --filter=ghostline -- --module=phantom-trace --full
+      - name: License compliance
+        run: npx license-checker --onlyAllow 'MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;CC0-1.0' --excludePrivatePackages
+      - name: VaultCheck full repo
+        run: npx turbo audit --filter=ghostline -- --module=vault-check --full-repo
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: osv-report.sarif
+        continue-on-error: true
