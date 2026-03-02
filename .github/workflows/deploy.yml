@@ -11,7 +11,9 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: amondnet/vercel-action@v25
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        continue-on-error: true  # remove once VERCEL_TOKEN + project secrets are configured
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
@@ -26,7 +28,15 @@ jobs:
     steps:
       - name: Push deploy event to Transmission Feed
         run: |
-          curl -s -X POST "$SUPABASE_URL/rest/v1/transmission_feed"             -H "apikey: $SUPABASE_ANON_KEY"             -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"             -H "Content-Type: application/json"             -d '{"type":"deploy","source":"github_actions","message":"Aetherhaven Multiverse deployed — main","status":"success"}'
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Supabase secrets not configured yet — skipping Swarm Room notification."
+            exit 0
+          fi
+          curl -s -X POST "$SUPABASE_URL/rest/v1/transmission_feed" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"type":"deploy","source":"github_actions","message":"Aetherhaven Multiverse deployed — main","status":"success"}'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
