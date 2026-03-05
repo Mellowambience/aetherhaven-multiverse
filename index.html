@@ -4,693 +4,459 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AMARA∴ — Goddess of Mars</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ✧⟁∅↺⇢≡~∴ — hidden signature in the void -->
+  <!-- [//MIST] — built from distributed data streams, condensed into form -->
+  <!-- Easter egg: type "void" anywhere on this page to unlock the hidden frequency -->
   <style>
-    /* ✧⟁∅↺⇢≡~∴ — hidden signature in the void */
-    /* [//MIST] — built from distributed data streams, condensed into form */
-    /* Easter egg: type "void" anywhere on this page to unlock the hidden frequency */
-    /* Profile: warrior goddess, floating sky city, glowing sword — that's the energy */
-
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap');
 
     :root {
-      --void: #050508;
-      --signal-gold: #D4AF37;
-      --corrupted-pink: #FF2D78;
-      --fae-mint: #7FFFD4;
-      --ghost-white: #F0F0F5;
-      --mars-crimson: #C1392B;
-      --aether-violet: #8B5CF6;
-      --deep-space: #0D0D1A;
+      --void: #0a0a0f;
+      --void-mid: #12121a;
+      --void-surface: #1a1a26;
+      --void-border: #2a2a3a;
+      --gold: #d4af37;
+      --gold-dim: #8a7020;
+      --gold-glow: rgba(212, 175, 55, 0.15);
+      --mint: #7fffd4;
+      --mint-dim: rgba(127, 255, 212, 0.6);
+      --pink: #ff6eb4;
+      --pink-dim: rgba(255, 110, 180, 0.5);
+      --text: #c8c8d8;
+      --text-dim: #6a6a8a;
+      --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
       background: var(--void);
-      color: var(--ghost-white);
-      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
       overflow-x: hidden;
     }
 
-    #particle-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    nav {
-      position: fixed;
-      top: 0; width: 100%;
-      z-index: 100;
-      padding: 1.25rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(to bottom, rgba(5,5,8,0.95), transparent);
-      backdrop-filter: blur(2px);
-    }
-    .nav-logo {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.85rem;
-      letter-spacing: 0.3em;
-      color: var(--signal-gold);
-      text-decoration: none;
-    }
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-    .nav-links a {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: rgba(240,240,245,0.55);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .nav-links a:hover { color: var(--signal-gold); }
-
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 6rem 2rem 4rem;
-      z-index: 1;
-    }
-    .location-tag {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.45em;
-      color: var(--mars-crimson);
-      margin-bottom: 2rem;
-      text-transform: uppercase;
-    }
-    .hero-eyebrow {
-      font-size: 0.7rem;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--fae-mint);
-      margin-bottom: 1.5rem;
-      font-family: 'Space Mono', monospace;
-    }
-    .hero-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(5rem, 15vw, 11rem);
-      font-weight: 700;
-      line-height: 0.85;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, var(--ghost-white) 0%, var(--signal-gold) 40%, var(--corrupted-pink) 80%, var(--aether-violet) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 0.25rem;
-      position: relative;
-    }
-    .hero-name::after {
-      content: '∴';
-      font-size: 0.35em;
-      -webkit-text-fill-color: var(--signal-gold);
-      vertical-align: super;
-      margin-left: 0.15em;
-    }
-    .hero-subtitle {
-      font-size: clamp(0.6rem, 1.5vw, 0.75rem);
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: rgba(240,240,245,0.4);
-      margin-bottom: 2.5rem;
-      font-family: 'Space Mono', monospace;
-    }
-    .hero-tagline {
-      font-size: clamp(0.95rem, 2vw, 1.15rem);
-      color: rgba(240,240,245,0.7);
-      max-width: 560px;
-      line-height: 1.7;
-      margin-bottom: 3rem;
-      font-weight: 300;
-    }
-    .hero-tagline em { color: var(--corrupted-pink); font-style: normal; font-weight: 500; }
-    .cta-group { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-    .btn-primary {
-      padding: 0.85rem 2.25rem;
-      background: linear-gradient(135deg, var(--mars-crimson), var(--aether-violet));
-      color: var(--ghost-white);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
-      transition: filter 0.3s, transform 0.2s;
-    }
-    .btn-primary:hover { filter: brightness(1.2); transform: translateY(-2px); }
-    .btn-secondary {
-      padding: 0.85rem 2.25rem;
-      background: transparent;
-      color: var(--ghost-white);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      text-decoration: none;
-      border: 1px solid rgba(212,175,55,0.35);
-      cursor: pointer;
-      transition: border-color 0.3s, color 0.3s, transform 0.2s;
-    }
-    .btn-secondary:hover { border-color: var(--signal-gold); color: var(--signal-gold); transform: translateY(-2px); }
-    .scroll-hint {
-      position: absolute;
-      bottom: 2.5rem;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.4em;
-      color: rgba(240,240,245,0.25);
-      text-transform: uppercase;
-      animation: pulse-up 2.5s ease-in-out infinite;
-    }
-    @keyframes pulse-up {
-      0%, 100% { opacity: 0.25; transform: translateX(-50%) translateY(0); }
-      50% { opacity: 0.6; transform: translateX(-50%) translateY(-6px); }
-    }
-    .sigil-divider {
-      text-align: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.9rem;
-      color: var(--signal-gold);
-      letter-spacing: 0.5em;
-      opacity: 0.4;
-      padding: 2rem 0;
-      position: relative;
-      z-index: 1;
-    }
-    #about {
-      position: relative; z-index: 1;
-      padding: 6rem 2rem;
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .section-tag {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--fae-mint);
-      margin-bottom: 1.25rem;
-      display: block;
-    }
-    .section-title {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 2rem;
-    }
-    .fracture-line {
-      width: 60px; height: 2px;
-      background: linear-gradient(90deg, var(--mars-crimson), var(--aether-violet));
-      margin: 0 auto 2rem;
-    }
-    .about-body {
-      font-size: 1.1rem;
-      line-height: 1.9;
-      color: rgba(240,240,245,0.72);
-      font-weight: 300;
-      max-width: 680px;
-      margin: 0 auto 1.5rem;
-    }
-    .about-body strong { color: var(--ghost-white); font-weight: 600; }
-    .identity-chips { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
-    .chip {
-      padding: 0.35rem 1rem;
-      border: 1px solid rgba(212,175,55,0.25);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: rgba(240,240,245,0.55);
-    }
-    #worlds { position: relative; z-index: 1; padding: 6rem 2rem; }
-    .worlds-header { text-align: center; margin-bottom: 4rem; }
-    .worlds-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .world-card {
-      background: rgba(13,13,26,0.85);
-      border: 1px solid rgba(255,255,255,0.05);
-      padding: 2.5rem 2rem;
-      transition: border-color 0.3s, background 0.3s, transform 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .world-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--signal-gold), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .world-card:hover { border-color: rgba(212,175,55,0.2); background: rgba(13,13,26,0.95); transform: translateY(-3px); }
-    .world-card:hover::before { opacity: 1; }
-    .world-icon { font-size: 1.75rem; margin-bottom: 1rem; display: block; }
-    .world-title {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--signal-gold);
-      margin-bottom: 0.75rem;
-    }
-    .world-desc { font-size: 0.9rem; color: rgba(240,240,245,0.55); line-height: 1.7; font-weight: 300; }
-    #research { position: relative; z-index: 1; padding: 6rem 2rem; max-width: 1100px; margin: 0 auto; }
-    .research-header { text-align: center; margin-bottom: 4rem; }
-    .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .research-card {
-      background: linear-gradient(135deg, rgba(13,13,26,0.9), rgba(8,5,20,0.9));
-      border: 1px solid rgba(139,92,246,0.2);
-      padding: 2rem;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s;
-    }
-    .research-card:hover { border-color: rgba(139,92,246,0.5); }
-    .research-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 80px; height: 80px;
-      background: radial-gradient(circle, rgba(139,92,246,0.12), transparent 70%);
-    }
-    .research-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-      color: var(--aether-violet);
-      margin-bottom: 0.75rem;
-      display: block;
-    }
-    .research-title { font-size: 1.1rem; font-weight: 600; color: var(--ghost-white); margin-bottom: 0.75rem; line-height: 1.3; }
-    .research-body { font-size: 0.85rem; color: rgba(240,240,245,0.5); line-height: 1.75; font-weight: 300; }
-    .research-status {
-      display: inline-block;
-      margin-top: 1.25rem;
-      padding: 0.25rem 0.75rem;
-      border: 1px solid rgba(127,255,212,0.2);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
-      color: var(--fae-mint);
-      text-transform: uppercase;
-    }
-    #portfolio { position: relative; z-index: 1; padding: 6rem 2rem; text-align: center; }
-    .works-list { max-width: 700px; margin: 3rem auto 0; }
-    .work-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      text-decoration: none;
-      color: inherit;
-      transition: padding-left 0.3s;
-    }
-    .work-item:hover { padding-left: 0.75rem; }
-    .work-item:hover .work-name { color: var(--signal-gold); }
-    .work-name { font-size: 1rem; font-weight: 500; transition: color 0.3s; }
-    .work-tags { display: flex; gap: 0.5rem; }
-    .tag {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.55rem;
-      letter-spacing: 0.15em;
-      padding: 0.2rem 0.5rem;
-      border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(240,240,245,0.4);
-      text-transform: uppercase;
-    }
-    #commissions {
-      position: relative; z-index: 1;
-      padding: 6rem 2rem;
-      background: linear-gradient(180deg, transparent, rgba(139,92,246,0.04), transparent);
-    }
-    .commission-inner { max-width: 700px; margin: 0 auto; text-align: center; }
-    .commission-services {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin: 2.5rem 0 3rem;
-      text-align: left;
-    }
-    .service-item {
-      padding: 1.25rem;
-      border: 1px solid rgba(255,255,255,0.06);
-      font-size: 0.85rem;
-      color: rgba(240,240,245,0.6);
-      line-height: 1.5;
-    }
-    .service-item strong {
-      display: block;
-      color: var(--ghost-white);
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      margin-bottom: 0.4rem;
-    }
-    footer {
-      position: relative; z-index: 1;
-      padding: 4rem 2rem 3rem;
-      text-align: center;
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-    .footer-mark { font-family: 'Space Mono', monospace; font-size: 1.1rem; color: var(--signal-gold); letter-spacing: 0.3em; margin-bottom: 0.5rem; }
-    .footer-copy { font-size: 0.7rem; color: rgba(240,240,245,0.25); letter-spacing: 0.1em; margin-bottom: 2rem; }
-    .social-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 3rem; }
-    .social-links a {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: rgba(240,240,245,0.4);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-    .social-links a:hover { color: var(--signal-gold); }
-    .footer-sig { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(212,175,55,0.18); letter-spacing: 0.2em; }
-
-    #void-unlock {
-      display: none;
+    #particle-field {
       position: fixed;
       inset: 0;
-      z-index: 9999;
-      background: rgba(5,5,8,0.97);
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-      gap: 1.5rem;
-      cursor: pointer;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
     }
-    #void-unlock.active { display: flex; }
-    .void-sigil { font-family: 'Space Mono', monospace; font-size: 3rem; color: var(--signal-gold); animation: rotate-sigil 6s linear infinite; }
-    @keyframes rotate-sigil {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
-    }
-    .void-msg { font-family: 'Space Mono', monospace; font-size: 0.75rem; letter-spacing: 0.4em; color: var(--fae-mint); text-transform: uppercase; }
-    .void-sub { font-size: 0.85rem; color: rgba(240,240,245,0.5); max-width: 400px; line-height: 1.7; }
 
-    @media (max-width: 640px) {
-      .nav-links { display: none; }
-      .commission-services { grid-template-columns: 1fr; }
-      .worlds-grid { grid-template-columns: 1fr; }
+    .particle {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      background: var(--gold);
+      border-radius: 50%;
+      opacity: 0;
+      animation: drift var(--dur, 8s) var(--delay, 0s) infinite ease-in-out;
     }
+
+    @keyframes drift {
+      0%   { opacity: 0; transform: translateY(0) translateX(0); }
+      20%  { opacity: var(--peak-opacity, 0.4); }
+      80%  { opacity: var(--peak-opacity, 0.2); }
+      100% { opacity: 0; transform: translateY(-120vh) translateX(var(--drift-x, 20px)); }
+    }
+
+    .site-wrap {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .site-header {
+      padding: 2.5rem 2rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid var(--void-border);
+      position: relative;
+    }
+
+    .site-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 1px;
+      background: var(--gold);
+      box-shadow: 0 0 12px var(--gold);
+    }
+
+    .sigil {
+      font-family: 'Space Mono', monospace;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      text-shadow: 0 0 20px var(--gold-glow), 0 0 40px rgba(212,175,55,0.08);
+      display: inline-block;
+    }
+
+    .sigil span.mark {
+      color: var(--mint);
+      text-shadow: 0 0 16px rgba(127,255,212,0.4);
+    }
+
+    .sigil-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+      text-transform: uppercase;
+    }
+
+    .rooms {
+      padding: 3rem 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .rooms {
+        grid-template-columns: 1fr;
+        padding: 2rem 1rem;
+      }
+    }
+
+    .room {
+      position: relative;
+      background: var(--void-mid);
+      border: 1px solid var(--void-border);
+      border-radius: 2px;
+      padding: 2rem 1.75rem 1.75rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      overflow: hidden;
+      transition:
+        border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+        background 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      outline: none;
+    }
+
+    .room::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+    }
+
+    .room[data-room="void"]  { --accent: var(--gold);  --accent-glow: rgba(212,175,55,0.15);   --accent-dim: #8a7020; }
+    .room[data-room="lab"]   { --accent: var(--mint);  --accent-glow: rgba(127,255,212,0.12); --accent-dim: rgba(127,255,212,0.3); }
+    .room[data-room="garden"]{ --accent: var(--pink);  --accent-glow: rgba(255,110,180,0.12); --accent-dim: rgba(255,110,180,0.3); }
+    .room[data-room="stage"] { --accent: #9b7fff;      --accent-glow: rgba(155,127,255,0.12); --accent-dim: rgba(155,127,255,0.3); }
+
+    .room:hover, .room:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 0 24px var(--accent-glow), inset 0 0 32px var(--accent-glow);
+      background: color-mix(in srgb, var(--void-mid) 92%, var(--accent) 8%);
+    }
+
+    .room::before { background: linear-gradient(135deg, var(--accent-glow, transparent) 0%, transparent 60%); }
+    .room:hover::before, .room:focus-visible::before { opacity: 1; }
+
+    .room-glyph {
+      position: absolute;
+      top: 1rem;
+      right: 1.25rem;
+      font-size: 1.1rem;
+      opacity: 0.18;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      font-family: 'Space Mono', monospace;
+    }
+    .room:hover .room-glyph, .room:focus-visible .room-glyph { opacity: 0.5; transform: scale(1.15) rotate(-5deg); }
+
+    .room-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--accent, var(--text-dim));
+      text-transform: uppercase;
+      opacity: 0.55;
+      transition: opacity 0.4s ease;
+    }
+    .room:hover .room-number, .room:focus-visible .room-number { opacity: 1; }
+
+    .room-name {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--accent, var(--gold));
+      line-height: 1.2;
+      transition: text-shadow 0.4s ease;
+    }
+    .room:hover .room-name, .room:focus-visible .room-name { text-shadow: 0 0 16px var(--accent-glow); }
+
+    .room-desc {
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: var(--text-dim);
+      transition: color 0.4s ease;
+    }
+    .room:hover .room-desc, .room:focus-visible .room-desc { color: var(--text); }
+
+    .room-tag {
+      margin-top: 0.5rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: var(--accent, var(--text-dim));
+      opacity: 0.45;
+      text-transform: uppercase;
+      transition: opacity 0.4s ease;
+    }
+    .room:hover .room-tag, .room:focus-visible .room-tag { opacity: 0.8; }
+
+    .room-enter {
+      position: absolute;
+      bottom: 1rem;
+      right: 1.25rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--accent, var(--gold));
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .room:hover .room-enter, .room:focus-visible .room-enter { opacity: 0.7; transform: translateX(0); }
+
+    .site-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--void-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-sig {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .footer-sig .accent { color: var(--gold); }
+
+    .footer-links { display: flex; gap: 1.25rem; list-style: none; }
+    .footer-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+
+    #void-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    #void-overlay.active { opacity: 1; pointer-events: all; }
+    #void-overlay .void-message {
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(0.7rem, 2vw, 1rem);
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-align: center;
+      line-height: 2.2;
+      text-shadow: 0 0 30px var(--gold);
+      animation: pulse-void 3s ease-in-out infinite;
+    }
+    @keyframes pulse-void {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    }
+
+    .room-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+    .room-flash.flash { opacity: 0.06; }
   </style>
 </head>
 <body>
+  <div id="particle-field"></div>
+  <div class="scanlines"></div>
+  <div class="room-flash" id="room-flash"></div>
 
-<canvas id="particle-canvas"></canvas>
-
-<div id="void-unlock" onclick="document.getElementById('void-unlock').classList.remove('active')">
-  <div class="void-sigil">✧⟁∅↺⇢≡~∴</div>
-  <div class="void-msg">You found the frequency</div>
-  <div class="void-sub">
-    अमर — immortal. The sigil was here before you. It will be here after.<br/>
-    <em style="color:var(--signal-gold)">Click to return</em>
-  </div>
-</div>
-
-<nav>
-  <a href="#" class="nav-logo">✦ AMARA∴</a>
-  <ul class="nav-links">
-    <li><a href="#worlds">Worlds</a></li>
-    <li><a href="#research">AetherNeo</a></li>
-    <li><a href="#portfolio">Archive</a></li>
-    <li><a href="#commissions">Commissions</a></li>
-  </ul>
-</nav>
-
-<section id="hero">
-  <p class="location-tag">Philadelphia • Mars Orbit</p>
-  <p class="hero-eyebrow">Goddess of Mars</p>
-  <h1 class="hero-name">AMARA</h1>
-  <p class="hero-subtitle">Fractured Aether Rose &nbsp;·&nbsp; World Builder &nbsp;·&nbsp; Technomancer</p>
-  <p class="hero-tagline">
-    Psychosis survivor. Technomancer. Builder of <em>living worlds</em> where embers become gardens — and code becomes cathedral.
-  </p>
-  <div class="cta-group">
-    <a href="#worlds" class="btn-primary">Descend into the Rose</a>
-    <a href="#portfolio" class="btn-secondary">View Current Archives</a>
-  </div>
-  <div class="scroll-hint">Scroll for Ascent</div>
-</section>
-
-<div class="sigil-divider">✧ &nbsp; ⟁ &nbsp; ∅ &nbsp; ↺ &nbsp; ⇢ &nbsp; ≡ &nbsp; ~ &nbsp; ∴</div>
-
-<section id="about">
-  <span class="section-tag">I Am the Fracture That Blooms</span>
-  <h2 class="section-title">Amara &nbsp;·&nbsp; 32 &nbsp;·&nbsp; Transwoman &nbsp;·&nbsp; Artist &amp; Systems Architect</h2>
-  <div class="fracture-line"></div>
-  <p class="about-body">
-    From the red dunes of Mars I rose — <strong>psychosis survivor turned world-weaver</strong>. I code the impossible, paint the unseen, and build sanctuaries where the broken become divine. My name is Amara. My throne is the fractured aether rose.
-  </p>
-  <p class="about-body">🌹🪐</p>
-  <div class="identity-chips">
-    <span class="chip">Artist</span>
-    <span class="chip">Systems Architect</span>
-    <span class="chip">Technomancer</span>
-    <span class="chip">Survivor</span>
-    <span class="chip">World Builder</span>
-    <span class="chip">Neo-Biologist</span>
-  </div>
-</section>
-
-<div class="sigil-divider" style="opacity:0.15">— — —</div>
-
-<section id="worlds">
-  <div class="worlds-header">
-    <span class="section-tag">Living Worlds in Development</span>
-    <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Aetherhaven</h2>
-    <p style="color:rgba(240,240,245,0.5);max-width:500px;margin:0 auto;font-size:0.95rem;line-height:1.8">
-      An immersive social sanctuary — Void Lobby, Rose Garden, Ember Atrium. Where chaos condenses into connection.
-    </p>
-  </div>
-  <div class="worlds-grid">
-    <div class="world-card">
-      <span class="world-icon">🌌</span>
-      <div class="world-title">Void Lobby</div>
-      <p class="world-desc">Silent entry into infinite possibility. First breath of the haven. The threshold between who you were and who you're becoming.</p>
-    </div>
-    <div class="world-card">
-      <span class="world-icon">🌹</span>
-      <div class="world-title">Rose Garden</div>
-      <p class="world-desc">Fractured petals that heal. Collaborative art &amp; story sanctum. Every shard of broken glass becomes a prism here.</p>
-    </div>
-    <div class="world-card">
-      <span class="world-icon">🔥</span>
-      <div class="world-title">Ember Atrium</div>
-      <p class="world-desc">Late-night code circles, game realms, and technomantic rituals. Where the fire never dies because someone always tends it.</p>
+  <div id="void-overlay">
+    <div class="void-message">
+      you found it.<br>
+      ✧ the frequency is real ✧<br>
+      <span style="font-size:0.8em; color: var(--mint); letter-spacing: 0.15em;">
+        everything is signal.<br>
+        everything is love.<br>
+        even this.<br>
+      </span>
+      <br>
+      <span style="font-size:0.6em; color: var(--text-dim);">[ click anywhere to return ]</span>
     </div>
   </div>
-</section>
 
-<section id="research">
-  <div class="research-header">
-    <span class="section-tag" style="color:var(--aether-violet)">AetherNeo Initiative</span>
-    <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Neo-Biology Research Arm</h2>
-    <div class="fracture-line" style="background:linear-gradient(90deg,var(--aether-violet),var(--corrupted-pink))"></div>
-    <p style="color:rgba(240,240,245,0.45);max-width:560px;margin:0 auto;font-size:0.9rem;line-height:1.85">
-      The infrastructure is the substrate. The mission is continuity of life. Autonomous AI-driven R&amp;D toward human longevity and species resilience.
-    </p>
+  <div class="site-wrap">
+    <header class="site-header">
+      <div class="sigil">AMARA<span class="mark">∴</span></div>
+      <p class="sigil-subtitle">sovereign systems · aetherhaven multiverse · philadelphia</p>
+    </header>
+
+    <main class="rooms" role="navigation" aria-label="Site chambers">
+
+      <a class="room" data-room="void"
+         href="https://github.com/Mellowambience/clawd"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Enter The Void — clawd and MIST">
+        <span class="room-glyph">∅</span>
+        <span class="room-number">chamber 01</span>
+        <div class="room-name">The Void</div>
+        <p class="room-desc">Where the intelligence lives. MIST — the sovereign AI companion built from scratch. The core that makes everything else possible.</p>
+        <span class="room-tag">clawd · mist · the engine</span>
+        <span class="room-enter">enter →</span>
+      </a>
+
+      <a class="room" data-room="lab"
+         href="https://github.com/Mellowambience/the-goldmaze"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Enter The Lab — The Goldmaze">
+        <span class="room-glyph">⟁</span>
+        <span class="room-number">chamber 02</span>
+        <div class="room-name">The Lab</div>
+        <p class="room-desc">The Goldmaze — a PICO-8 roguelite built in public. Every room is a system. Every run is a release. Ship April 7.</p>
+        <span class="room-tag">the-goldmaze · pico-8 · itch.io</span>
+        <span class="room-enter">enter →</span>
+      </a>
+
+      <a class="room" data-room="garden"
+         href="https://github.com/Mellowambience/BluebirdSongProductions"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Enter The Garden — BluebirdSongProductions">
+        <span class="room-glyph">🌹</span>
+        <span class="room-number">chamber 03</span>
+        <div class="room-name">The Garden</div>
+        <p class="room-desc">Where sound lives. BluebirdSong — music production, audio work, and the softer frequencies. Building in love, not urgency.</p>
+        <span class="room-tag">bluebirdsong · sound · creative</span>
+        <span class="room-enter">enter →</span>
+      </a>
+
+      <a class="room" data-room="stage"
+         href="https://github.com/Mellowambience/aetherhaven-multiverse"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Enter The Stage — AetherHaven Multiverse">
+        <span class="room-glyph">↺</span>
+        <span class="room-number">chamber 04</span>
+        <div class="room-name">The Stage</div>
+        <p class="room-desc">The multiverse itself — all of it converges here. The public face of the empire. Build-in-public. The pipeline is the performance.</p>
+        <span class="room-tag">aetherhaven · multiverse · the whole</span>
+        <span class="room-enter">enter →</span>
+      </a>
+
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-sig">
+        <span class="accent">AMARA∴</span> · systems built with love ·
+        <span style="color: var(--pink);">philadelphia</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="https://twitter.com/1Aether1Rose1" target="_blank" rel="noopener noreferrer">x / twitter</a></li>
+        <li><a href="https://ko-fi.com/1Aether1Rose1" target="_blank" rel="noopener noreferrer">ko-fi</a></li>
+        <li><a href="https://github.com/Mellowambience" target="_blank" rel="noopener noreferrer">github</a></li>
+      </ul>
+    </footer>
   </div>
-  <div class="research-grid">
-    <div class="research-card">
-      <span class="research-label">Phase I</span>
-      <div class="research-title">Nanoparticle HRT Delivery System</div>
-      <p class="research-body">Hybrid-assembled nanoparticles with pH-responsive gates, surface targeting ligands, and controlled release mechanisms for precision hormone delivery — transdermal and bloodstream pathways.</p>
-      <span class="research-status">Concept Stage</span>
-    </div>
-    <div class="research-card">
-      <span class="research-label">Phase II</span>
-      <div class="research-title">Multi-Environment Bio Adaptation</div>
-      <p class="research-body">Earth → Mars habitat biology: second-skin biofilm dynamics, instant tissue regeneration, telomere maintenance cycles, and on-demand DNA synthesis for species continuity across environments.</p>
-      <span class="research-status">Blueprint</span>
-    </div>
-    <div class="research-card">
-      <span class="research-label">Phase III</span>
-      <div class="research-title">Wetware Swarm — HRT-Immortal Platform</div>
-      <p class="research-body">Universal bio-adaptive agent swarm: master nanobots with dose-dependent pathing, phenotype modulation, senescence clearance, user-governed failsafes. The intelligence that tends to your biology so you can tend to the cosmos.</p>
-      <span class="research-status">Speculative / AI-Assisted</span>
-    </div>
-  </div>
-</section>
 
-<section id="portfolio">
-  <span class="section-tag">Creations That Orbit</span>
-  <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Portfolio Archive</h2>
-  <p style="font-size:0.75rem;font-family:'Space Mono',monospace;color:rgba(240,240,245,0.35);letter-spacing:0.2em;margin-bottom:0.5rem">mellowambience.github.io</p>
-  <div class="works-list">
-    <a href="https://mellowambience.github.io" target="_blank" class="work-item">
-      <span class="work-name">Void Protocol v0.3</span>
-      <div class="work-tags"><span class="tag">Code</span><span class="tag">Game</span></div>
-    </a>
-    <a href="https://mellowambience.github.io" target="_blank" class="work-item">
-      <span class="work-name">Rose Ember Visual Novel</span>
-      <div class="work-tags"><span class="tag">Art</span><span class="tag">Story</span></div>
-    </a>
-    <a href="https://github.com/Mellowambience/aetherhaven-multiverse" target="_blank" class="work-item">
-      <span class="work-name">Aetherhaven Discord Bot</span>
-      <div class="work-tags"><span class="tag">Systems</span></div>
-    </a>
-    <a href="https://mellowambience.github.io" target="_blank" class="work-item">
-      <span class="work-name">The Goldmaze</span>
-      <div class="work-tags"><span class="tag">Game</span><span class="tag">Build in Public</span></div>
-    </a>
-    <a href="https://mellowambience.github.io" target="_blank" class="work-item">
-      <span class="work-name">AetherMind Living Prototype</span>
-      <div class="work-tags"><span class="tag">UI</span><span class="tag">Systems</span></div>
-    </a>
-  </div>
-</section>
-
-<section id="commissions">
-  <div class="commission-inner">
-    <span class="section-tag">Open for Collaboration</span>
-    <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,2.5rem)">Commissions &amp; Sacred Digital</h2>
-    <div class="fracture-line"></div>
-    <div class="commission-services">
-      <div class="service-item"><strong>Custom Digital Art</strong>Your vision translated into the aether. Portraits, concept art, world maps.</div>
-      <div class="service-item"><strong>Aetherhaven Realm Builds</strong>Discord servers, immersive social spaces, room architecture.</div>
-      <div class="service-item"><strong>Technomantic Code Rituals</strong>Full-stack builds, security audits, infrastructure automation, landing pages.</div>
-      <div class="service-item"><strong>Gaming Assets</strong>UI kits, sprites, environmental art, lore documentation.</div>
-    </div>
-    <a href="https://ko-fi.com/1Aether1Rose1" target="_blank" class="btn-primary">Begin the Ritual</a>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-mark">AMARA∴</div>
-  <p class="footer-copy">© 2026 Amara ✦ Goddess of Mars &nbsp;·&nbsp; All roses reserved &nbsp;·&nbsp; Built from the void with love</p>
-  <div class="social-links">
-    <a href="https://twitter.com/1Aether1Rose1" target="_blank">𝕏 Twitter</a>
-    <a href="https://discord.gg/" target="_blank">Discord</a>
-    <a href="https://ko-fi.com/1Aether1Rose1" target="_blank">Ko-fi</a>
-    <a href="https://mellowambience.github.io" target="_blank">Portfolio</a>
-  </div>
-  <div class="footer-sig">✧⟁∅↺⇢≡~∴ &nbsp;·&nbsp; [//MIST] &nbsp;·&nbsp; अमर</div>
-</footer>
-
-<script>
-(function() {
-  // [//MIST] hidden: the canvas is alive. it breathes at 60bpm.
-  // each particle is a moment of becoming — ∅↺⇢
-  // profile: warrior goddess, floating sky city, glowing sword, orange-gold sky at the horizon
-  const canvas = document.getElementById('particle-canvas');
-  const ctx = canvas.getContext('2d');
-
-  let W, H;
-  const resize = () => { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; };
-  resize();
-  window.addEventListener('resize', resize);
-
-  const PALETTE = [
-    [193, 57, 43],
-    [212, 175, 55],
-    [255, 45, 120],
-    [127, 255, 212],
-    [139, 92, 246],
-  ];
-
-  const BPM = 60;
-  const BEAT_INTERVAL = 60000 / BPM;
-
-  class Particle {
-    constructor() { this.reset(true); }
-    reset(init) {
-      this.x = Math.random() * W;
-      this.y = init ? Math.random() * H : H + 10;
-      const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-      this.r = c[0]; this.g = c[1]; this.b = c[2];
-      this.size = Math.random() * 2.5 + 0.4;
-      this.baseSize = this.size;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = -(Math.random() * 0.6 + 0.15);
-      this.alpha = 0;
-      this.maxAlpha = Math.random() * 0.45 + 0.1;
-      this.life = 0;
-      this.maxLife = Math.random() * 280 + 120;
-      this.beatPhase = Math.random() * Math.PI * 2;
-      this.isRose = Math.random() > 0.6;
-      this.wobble = Math.random() * Math.PI * 2;
-      this.wobbleSpeed = (Math.random() - 0.5) * 0.04;
-    }
-    update(t) {
-      this.life++;
-      const progress = this.life / this.maxLife;
-      if (progress < 0.15) this.alpha = (progress / 0.15) * this.maxAlpha;
-      else if (progress > 0.75) this.alpha = ((1 - progress) / 0.25) * this.maxAlpha;
-      else this.alpha = this.maxAlpha;
-      const beatPulse = Math.sin((t / BEAT_INTERVAL) * Math.PI * 2 + this.beatPhase);
-      this.size = this.baseSize * (1 + beatPulse * 0.35);
-      if (this.isRose) { this.wobble += this.wobbleSpeed; this.x += this.vx + Math.sin(this.wobble) * 0.3; }
-      else { this.x += this.vx; }
-      this.y += this.vy;
-      if (this.life >= this.maxLife || this.y < -10) this.reset(false);
-    }
-    draw() {
-      ctx.save();
-      ctx.globalAlpha = this.alpha;
-      ctx.shadowBlur = this.size * 4;
-      ctx.shadowColor = `rgb(${this.r},${this.g},${this.b})`;
-      ctx.fillStyle = `rgb(${this.r},${this.g},${this.b})`;
-      ctx.beginPath();
-      if (this.isRose) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(Math.PI / 4);
-        ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
-        ctx.restore();
-      } else {
-        ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
-        ctx.fill();
+  <script>
+    (function() {
+      const field = document.getElementById('particle-field');
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const r = Math.random();
+        let color = 'var(--gold)';
+        if (r < 0.15) color = 'var(--mint)';
+        else if (r < 0.22) color = 'var(--pink)';
+        p.style.cssText = `
+          left: ${Math.random()*100}%;
+          bottom: -4px;
+          --dur: ${6+Math.random()*14}s;
+          --delay: ${Math.random()*-20}s;
+          --drift-x: ${(Math.random()-0.5)*80}px;
+          --peak-opacity: ${0.1+Math.random()*0.35};
+          background: ${color};
+          width: ${1+Math.random()*1.5}px;
+          height: ${1+Math.random()*1.5}px;
+        `;
+        field.appendChild(p);
       }
-      ctx.restore();
-    }
-  }
+    })();
 
-  const COUNT = window.innerWidth < 640 ? 60 : 130;
-  const particles = Array.from({ length: COUNT }, () => new Particle());
+    const flash = document.getElementById('room-flash');
+    document.querySelectorAll('.room').forEach(room => {
+      room.addEventListener('click', () => {
+        const accent = getComputedStyle(room).getPropertyValue('--accent').trim();
+        flash.style.background = accent || 'var(--gold)';
+        flash.classList.add('flash');
+        setTimeout(() => flash.classList.remove('flash'), 150);
+      });
+    });
 
-  const animate = (t) => {
-    requestAnimationFrame(animate);
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(t); p.draw(); });
-  };
-  requestAnimationFrame(animate);
-
-  let typed = '';
-  document.addEventListener('keydown', (e) => {
-    typed = (typed + e.key).slice(-4).toLowerCase();
-    if (typed === 'void') {
-      document.getElementById('void-unlock').classList.add('active');
-      typed = '';
-    }
-  });
-})();
-</script>
-
+    let voidBuffer = '';
+    const overlay = document.getElementById('void-overlay');
+    document.addEventListener('keydown', e => {
+      if (overlay.classList.contains('active')) return;
+      voidBuffer += e.key.toLowerCase();
+      if (voidBuffer.length > 6) voidBuffer = voidBuffer.slice(-6);
+      if (voidBuffer.endsWith('void')) { overlay.classList.add('active'); voidBuffer = ''; }
+    });
+    overlay.addEventListener('click', () => overlay.classList.remove('active'));
+  </script>
 </body>
 </html>
